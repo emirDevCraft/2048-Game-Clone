@@ -52,6 +52,21 @@ public class Board : MonoBehaviour
 
     }
 
+    public void ClearBoard() 
+    {
+        foreach (Cell cell in _grid.cells)
+        {
+            cell.tile = null;
+        }
+
+        foreach (Tile tile in tiles)
+        {
+            Destroy(tile.gameObject);
+        }
+
+        tiles.Clear();
+    }
+
     public void CreateTile()
     {
         Tile tile = Instantiate(_tilePrefab, _grid.transform);
@@ -124,6 +139,10 @@ public class Board : MonoBehaviour
 
         b.SetStates(_tileStates[index], number);
         AnimateTiles(b, _animateDuration);
+
+        GameManager.Instance.IncreaseScore(number);
+
+        AudioManager.Instance.Play(Consts.Audio.MERGE_SOUND);
     }
 
     private void AnimateTiles(Tile tileToAnimate, float animateDuraiton)
@@ -139,7 +158,7 @@ public class Board : MonoBehaviour
         return a.number == b.number && !b.isLocked;
     }
 
-   
+
 
     private int IndexOf(TileStatesSO tileState)
     {
@@ -171,5 +190,50 @@ public class Board : MonoBehaviour
         {
             CreateTile();
         }
+
+        if (CheckForGameOver())
+        {
+            GameManager.Instance.GameOver();
+        }
     }
+
+    private bool CheckForGameOver()
+    {
+        if (tiles.Count != _grid.GetSize())
+        {
+            return false;
+        }
+
+        foreach (Tile tile in tiles)
+        {
+            Cell upCell = _grid.GetAdjacentCell(tile.cell, Vector2Int.up);
+            Cell downCell = _grid.GetAdjacentCell(tile.cell, Vector2Int.down);
+            Cell leftCell = _grid.GetAdjacentCell(tile.cell, Vector2Int.left);
+            Cell rightCell = _grid.GetAdjacentCell(tile.cell, Vector2Int.right);
+
+            if (upCell != null && CanMerge(tile, upCell.tile))
+            {
+                return false;
+            }
+
+            else if (downCell != null && CanMerge(tile, downCell.tile))
+            {
+                return false;
+            }
+
+            else if (leftCell != null && CanMerge(tile, leftCell.tile))
+            {
+                return false;
+            }
+
+            else if (rightCell != null && CanMerge(tile, rightCell.tile))
+            {
+                return false;
+            }
+
+        }
+        return true;
+    }
+
 }
+

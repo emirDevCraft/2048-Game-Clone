@@ -1,4 +1,3 @@
-using System.Globalization;
 
 public static class Consts
 {
@@ -18,4 +17,13 @@ public static class Consts
 
     }
 
+    public struct SaveValues 
+    {
+        public const string BEST_SCORE = "BestScore";
+    }
+
+    public struct Audio
+    {
+        public const string MERGE_SOUND = "MergeSound";
+    }
 }
